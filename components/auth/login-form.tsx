@@ -101,9 +101,9 @@ export function LoginForm() {
           <div className="mt-4 text-center text-sm text-gray-600">
             Demo Accounts:
             <div className="mt-2 space-y-1 text-xs">
-              <div>Admin: admin@school.edu / admin123</div>
-              <div>Teacher: teacher@school.edu / teacher123</div>
-              <div>Student: student@school.edu / student123</div>
+              <div>Admin: admin@school.edu.pk / admin123</div>
+              <div>Teacher: teacher@school.edu.pk / teacher123</div>
+              <div>Student: student@school.edu.pk / student123</div>
             </div>
           </div>
         </CardContent>
