@@ -10,16 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
-import {
   Calendar,
   Clock,
   Plus,
@@ -344,430 +334,350 @@ export default function SchedulePage(): JSX.Element {
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-gray-50">
-        {/* Main Sidebar */}
-        <Sidebar className="border-r">
-          <SidebarHeader className="p-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Calendar className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h2 className="font-semibold text-lg">SmartSchedule</h2>
-                <p className="text-xs text-gray-500">School Planner</p>
-              </div>
+    <div className="min-h-screen w-full bg-gray-50 flex flex-col">
+      {/* Navbar */}
+      <header className="bg-white border-b px-3 md:px-6 py-3 md:py-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
+            <div className="min-w-0">
+              <h1 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
+                <span className="hidden sm:inline">Schedule Management</span>
+                <span className="sm:hidden">Schedule</span>
+              </h1>
+              <p className="text-xs md:text-sm text-gray-600 hidden sm:block">
+                Create, manage, and optimize class schedules
+              </p>
             </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild isActive={item.active}>
-                    <a href={item.href} className="flex items-center gap-3">
-                      {item.icon && <item.icon className="w-4 h-4" />}
-                      <span>{item.name}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-        </Sidebar>
-
-        <div className="flex-1 flex flex-col">
-          {/* Navbar */}
-          <header className="bg-white border-b px-3 md:px-6 py-3 md:py-4">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
-                <SidebarTrigger />
-                <div className="min-w-0">
-                  <h1 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
-                    <span className="hidden sm:inline">Schedule Management</span>
-                    <span className="sm:hidden">Schedule</span>
-                  </h1>
-                  <p className="text-xs md:text-sm text-gray-600 hidden sm:block">
-                    Create, manage, and optimize class schedules
-                  </p>
-                </div>
+          </div>
+        </div>
+      </header>
+      {/* Main Content */}
+      <main className="flex-1 p-3 md:p-6 space-y-4 md:space-y-6 overflow-x-hidden">
+        {/* Filters and Controls */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+              <Filter className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="hidden sm:inline">Filters & Controls</span>
+              <span className="sm:hidden">Filters</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 md:gap-4 mb-3 md:mb-4">
+              <div className="relative col-span-2 sm:col-span-1">
+                <Search className="w-4 h-4 absolute left-3 top-2.5 md:top-3 text-gray-400" />
+                <Input
+                  placeholder="Search..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 h-9 md:h-10 text-sm"
+                />
               </div>
-              <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
-                <Select
-                  value={selectedTemplate.toString()}
-                  onValueChange={(value) => handleLoadTemplate(Number(value))}
+              <Select value={selectedDay} onValueChange={setSelectedDay}>
+                <SelectTrigger className="h-9 md:h-10 text-xs md:text-sm">
+                  <SelectValue placeholder="Day" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Days</SelectItem>
+                  {DAYS.map((day) => (
+                    <SelectItem key={day} value={day}>
+                      <span className="hidden sm:inline">{day}</span>
+                      <span className="sm:hidden">{day.slice(0, 3)}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedGrade} onValueChange={setSelectedGrade}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Grade" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Grades</SelectItem>
+                  {GRADES.map((grade) => (
+                    <SelectItem key={grade} value={grade}>
+                      {grade}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Teacher" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Teachers</SelectItem>
+                  {TEACHERS.map((teacher) => (
+                    <SelectItem key={teacher} value={teacher}>
+                      {teacher}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedRoom} onValueChange={setSelectedRoom}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Room" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Rooms</SelectItem>
+                  {ROOMS.map((room) => (
+                    <SelectItem key={room} value={room}>
+                      {room}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="modified">Modified</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
                 >
-                  <SelectTrigger className="w-32 sm:w-48 h-8 md:h-10 text-xs md:text-sm">
-                    <SelectValue placeholder="Template" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {templates.map((template) => (
-                      <SelectItem key={template.id} value={template.id.toString()}>
-                        {template.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button variant="outline" size="sm" onClick={handleSaveAsTemplate} className="hidden sm:flex">
-                  <Copy className="w-4 h-4 mr-1" />
-                  Save Template
+                  Grid
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleExportSchedule} className="hidden md:flex">
-                  <Download className="w-4 h-4 mr-1" />
-                  Export
+                <Button
+                  variant={viewMode === "list" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                >
+                  List
                 </Button>
-                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button size="sm" className="h-8 md:h-10">
-                      <Plus className="w-4 h-4 mr-0 sm:mr-1" />
-                      <span className="hidden sm:inline">Add Class</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Add New Class</DialogTitle>
-                    </DialogHeader>
-                    <ScheduleItemForm
-                      onSubmit={(item) => {
-                        handleAddScheduleItem(item)
-                        setIsAddDialogOpen(false)
-                      }}
-                      onCancel={() => setIsAddDialogOpen(false)}
-                    />
-                  </DialogContent>
-                </Dialog>
               </div>
             </div>
-          </header>
 
-          {/* Main Content */}
-          <main className="flex-1 p-6 space-y-6">
-            {/* Filters and Controls */}
+            {/* Bulk Actions - Mobile optimized */}
+            <div className="flex flex-wrap items-center gap-2 pt-3 md:pt-4 border-t">
+              <span className="text-xs md:text-sm text-gray-600">Actions:</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleBulkStatusUpdate("active")}
+                className="text-xs"
+              >
+                <span className="hidden sm:inline">Mark All </span>Active
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleBulkStatusUpdate("cancelled")}
+                className="text-xs"
+              >
+                <span className="hidden sm:inline">Cancel All</span>
+                <span className="sm:hidden">Cancel</span>
+              </Button>
+              <Button variant="outline" size="sm" className="text-xs">
+                <RefreshCw className="w-3 h-3 mr-1" />
+                <span className="hidden sm:inline">Auto-Optimize</span>
+                <span className="sm:hidden">Optimize</span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Schedule Content */}
+        <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "grid" | "list")}>
+          <TabsList className="hidden">
+            <TabsTrigger value="grid">Grid View</TabsTrigger>
+            <TabsTrigger value="list">List View</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="grid">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                  <Filter className="w-4 h-4 md:w-5 md:h-5" />
-                  <span className="hidden sm:inline">Filters & Controls</span>
-                  <span className="sm:hidden">Filters</span>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  Weekly Schedule Grid
+                  <Badge variant="outline" className="ml-auto">
+                    {filteredScheduleItems.length} classes
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 md:gap-4 mb-3 md:mb-4">
-                  <div className="relative col-span-2 sm:col-span-1">
-                    <Search className="w-4 h-4 absolute left-3 top-2.5 md:top-3 text-gray-400" />
-                    <Input
-                      placeholder="Search..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 h-9 md:h-10 text-sm"
-                    />
-                  </div>
-                  <Select value={selectedDay} onValueChange={setSelectedDay}>
-                    <SelectTrigger className="h-9 md:h-10 text-xs md:text-sm">
-                      <SelectValue placeholder="Day" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Days</SelectItem>
+                <div className="overflow-x-auto">
+                  <div className="min-w-[1000px]">
+                    {/* Header */}
+                    <div className="grid grid-cols-6 gap-2 mb-4">
+                      <div className="font-semibold text-center py-2">Time</div>
                       {DAYS.map((day) => (
-                        <SelectItem key={day} value={day}>
-                          <span className="hidden sm:inline">{day}</span>
-                          <span className="sm:hidden">{day.slice(0, 3)}</span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={selectedGrade} onValueChange={setSelectedGrade}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Grade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Grades</SelectItem>
-                      {GRADES.map((grade) => (
-                        <SelectItem key={grade} value={grade}>
-                          {grade}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Teacher" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Teachers</SelectItem>
-                      {TEACHERS.map((teacher) => (
-                        <SelectItem key={teacher} value={teacher}>
-                          {teacher}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={selectedRoom} onValueChange={setSelectedRoom}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Room" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Rooms</SelectItem>
-                      {ROOMS.map((room) => (
-                        <SelectItem key={room} value={room}>
-                          {room}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                      <SelectItem value="modified">Modified</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="flex gap-2">
-                    <Button
-                      variant={viewMode === "grid" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setViewMode("grid")}
-                    >
-                      Grid
-                    </Button>
-                    <Button
-                      variant={viewMode === "list" ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setViewMode("list")}
-                    >
-                      List
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Bulk Actions - Mobile optimized */}
-                <div className="flex flex-wrap items-center gap-2 pt-3 md:pt-4 border-t">
-                  <span className="text-xs md:text-sm text-gray-600">Actions:</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleBulkStatusUpdate("active")}
-                    className="text-xs"
-                  >
-                    <span className="hidden sm:inline">Mark All </span>Active
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleBulkStatusUpdate("cancelled")}
-                    className="text-xs"
-                  >
-                    <span className="hidden sm:inline">Cancel All</span>
-                    <span className="sm:hidden">Cancel</span>
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-xs">
-                    <RefreshCw className="w-3 h-3 mr-1" />
-                    <span className="hidden sm:inline">Auto-Optimize</span>
-                    <span className="sm:hidden">Optimize</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Schedule Content */}
-            <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "grid" | "list")}>
-              <TabsList className="hidden">
-                <TabsTrigger value="grid">Grid View</TabsTrigger>
-                <TabsTrigger value="list">List View</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="grid">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5" />
-                      Weekly Schedule Grid
-                      <Badge variant="outline" className="ml-auto">
-                        {filteredScheduleItems.length} classes
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="overflow-x-auto">
-                      <div className="min-w-[1000px]">
-                        {/* Header */}
-                        <div className="grid grid-cols-6 gap-2 mb-4">
-                          <div className="font-semibold text-center py-2">Time</div>
-                          {DAYS.map((day) => (
-                            <div key={day} className="font-semibold text-center py-2 bg-gray-50 rounded">
-                              {day}
-                            </div>
-                          ))}
+                        <div key={day} className="font-semibold text-center py-2 bg-gray-50 rounded">
+                          {day}
                         </div>
+                      ))}
+                    </div>
 
-                        {/* Time slots */}
-                        {TIME_SLOTS.map((time) => (
-                          <div key={time} className="grid grid-cols-6 gap-2 mb-2">
-                            <div className="flex items-center justify-center py-4 font-medium text-gray-600 bg-gray-50 rounded">
-                              {time}
-                            </div>
-                            {DAYS.map((day) => (
+                    {/* Time slots */}
+                    {TIME_SLOTS.map((time) => (
+                      <div key={time} className="grid grid-cols-6 gap-2 mb-2">
+                        <div className="flex items-center justify-center py-4 font-medium text-gray-600 bg-gray-50 rounded">
+                          {time}
+                        </div>
+                        {DAYS.map((day) => (
+                          <div
+                            key={`${day}-${time}`}
+                            className="min-h-[100px] p-2 border-2 border-dashed border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-colors"
+                            onDragOver={handleDragOver}
+                            onDrop={(e) => handleDrop(e, day, time)}
+                          >
+                            {getItemsForSlot(day, time).map((item) => (
                               <div
-                                key={`${day}-${time}`}
-                                className="min-h-[100px] p-2 border-2 border-dashed border-gray-200 rounded-lg hover:border-gray-300 hover:bg-gray-50 transition-colors"
-                                onDragOver={handleDragOver}
-                                onDrop={(e) => handleDrop(e, day, time)}
+                                key={item.id}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, item)}
+                                className={`${item.color} text-white p-3 rounded-lg mb-1 cursor-move hover:opacity-90 transition-opacity relative`}
                               >
-                                {getItemsForSlot(day, time).map((item) => (
-                                  <div
-                                    key={item.id}
-                                    draggable
-                                    onDragStart={(e) => handleDragStart(e, item)}
-                                    className={`${item.color} text-white p-3 rounded-lg mb-1 cursor-move hover:opacity-90 transition-opacity relative`}
-                                  >
-                                    <div className="flex items-center justify-between mb-2">
-                                      <span className="font-medium text-sm">{item.subject}</span>
-                                      <Badge className={`text-xs ${getStatusColor(item.status)}`}>
-                                        {getStatusIcon(item.status)}
-                                      </Badge>
-                                    </div>
-                                    <div className="text-xs opacity-90 space-y-1">
-                                      <div className="flex items-center gap-1">
-                                        <Users className="w-3 h-3" />
-                                        <span>{item.teacher}</span>
-                                      </div>
-                                      <div className="flex items-center gap-1">
-                                        <MapPin className="w-3 h-3" />
-                                        <span>{item.room}</span>
-                                      </div>
-                                      <div className="flex items-center gap-1">
-                                        <Clock className="w-3 h-3" />
-                                        <span>{item.duration}min</span>
-                                      </div>
-                                      <div className="flex items-center gap-1">
-                                        <Users className="w-3 h-3" />
-                                        <span>{item.studentCount} students</span>
-                                      </div>
-                                    </div>
-                                    <Badge variant="secondary" className="text-xs mt-2">
-                                      {item.grade}
-                                    </Badge>
-                                    <div className="absolute top-1 right-1 flex gap-1">
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-6 w-6 p-0 text-white hover:bg-white/20"
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          setSelectedItem(item)
-                                        }}
-                                      >
-                                        <Eye className="w-3 h-3" />
-                                      </Button>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-6 w-6 p-0 text-white hover:bg-white/20"
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          handleDuplicateScheduleItem(item)
-                                        }}
-                                      >
-                                        <Copy className="w-3 h-3" />
-                                      </Button>
-                                    </div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="font-medium text-sm">{item.subject}</span>
+                                  <Badge className={`text-xs ${getStatusColor(item.status)}`}>
+                                    {getStatusIcon(item.status)}
+                                  </Badge>
+                                </div>
+                                <div className="text-xs opacity-90 space-y-1">
+                                  <div className="flex items-center gap-1">
+                                    <Users className="w-3 h-3" />
+                                    <span>{item.teacher}</span>
                                   </div>
-                                ))}
+                                  <div className="flex items-center gap-1">
+                                    <MapPin className="w-3 h-3" />
+                                    <span>{item.room}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    <span>{item.duration}min</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Users className="w-3 h-3" />
+                                    <span>{item.studentCount} students</span>
+                                  </div>
+                                </div>
+                                <Badge variant="secondary" className="text-xs mt-2">
+                                  {item.grade}
+                                </Badge>
+                                <div className="absolute top-1 right-1 flex gap-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 text-white hover:bg-white/20"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setSelectedItem(item)
+                                    }}
+                                  >
+                                    <Eye className="w-3 h-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 text-white hover:bg-white/20"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleDuplicateScheduleItem(item)
+                                    }}
+                                  >
+                                    <Copy className="w-3 h-3" />
+                                  </Button>
+                                </div>
                               </div>
                             ))}
                           </div>
                         ))}
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              <TabsContent value="list">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <BookOpen className="w-5 h-5" />
-                      Schedule List View
-                      <Badge variant="outline" className="ml-auto">
-                        {filteredScheduleItems.length} classes
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {filteredScheduleItems.map((item) => (
-                        <div
-                          key={item.id}
-                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className={`w-4 h-4 rounded ${item.color}`} />
-                            <div>
-                              <h4 className="font-medium">{item.subject}</h4>
-                              <p className="text-sm text-gray-600">
-                                {item.day} at {item.time} • {item.duration} minutes
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="text-right">
-                              <p className="text-sm font-medium">{item.teacher}</p>
-                              <p className="text-xs text-gray-600">{item.room}</p>
-                            </div>
-                            <Badge variant="outline">{item.grade}</Badge>
-                            <Badge className={getStatusColor(item.status)}>
-                              {getStatusIcon(item.status)}
-                              <span className="ml-1 capitalize">{item.status}</span>
-                            </Badge>
-                            <div className="flex gap-1">
-                              <Button variant="ghost" size="sm" onClick={() => setSelectedItem(item)}>
-                                <Edit className="w-3 h-3" />
-                              </Button>
-                              <Button variant="ghost" size="sm" onClick={() => handleDuplicateScheduleItem(item)}>
-                                <Copy className="w-3 h-3" />
-                              </Button>
-                              <Button variant="ghost" size="sm" onClick={() => handleDeleteScheduleItem(item.id)}>
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          </div>
+          <TabsContent value="list">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" />
+                  Schedule List View
+                  <Badge variant="outline" className="ml-auto">
+                    {filteredScheduleItems.length} classes
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {filteredScheduleItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={`w-4 h-4 rounded ${item.color}`} />
+                        <div>
+                          <h4 className="font-medium">{item.subject}</h4>
+                          <p className="text-sm text-gray-600">
+                            {item.day} at {item.time} • {item.duration} minutes
+                          </p>
                         </div>
-                      ))}
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="text-sm font-medium">{item.teacher}</p>
+                          <p className="text-xs text-gray-600">{item.room}</p>
+                        </div>
+                        <Badge variant="outline">{item.grade}</Badge>
+                        <Badge className={getStatusColor(item.status)}>
+                          {getStatusIcon(item.status)}
+                          <span className="ml-1 capitalize">{item.status}</span>
+                        </Badge>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => setSelectedItem(item)}>
+                            <Edit className="w-3 h-3" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDuplicateScheduleItem(item)}>
+                            <Copy className="w-3 h-3" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDeleteScheduleItem(item.id)}>
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
-            {/* Schedule Item Detail Dialog */}
-            {selectedItem && (
-              <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Edit Class - {selectedItem.subject}</DialogTitle>
-                  </DialogHeader>
-                  <ScheduleItemForm
-                    initialData={selectedItem}
-                    onSubmit={(updatedItem) => {
-                      handleUpdateScheduleItem({ ...updatedItem, id: selectedItem.id })
-                      setSelectedItem(null)
-                    }}
-                    onCancel={() => setSelectedItem(null)}
-                    onDelete={() => {
-                      handleDeleteScheduleItem(selectedItem.id)
-                      setSelectedItem(null)
-                    }}
-                  />
-                </DialogContent>
-              </Dialog>
-            )}
-          </main>
-        </div>
-      </div>
-    </SidebarProvider>
+        {/* Schedule Item Detail Dialog */}
+        {selectedItem && (
+          <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Edit Class - {selectedItem.subject}</DialogTitle>
+              </DialogHeader>
+              <ScheduleItemForm
+                initialData={selectedItem}
+                onSubmit={(updatedItem) => {
+                  handleUpdateScheduleItem({ ...updatedItem, id: selectedItem.id })
+                  setSelectedItem(null)
+                }}
+                onCancel={() => setSelectedItem(null)}
+                onDelete={() => {
+                  handleDeleteScheduleItem(selectedItem.id)
+                  setSelectedItem(null)
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        )}
+      </main>
+    </div>
   )
 }

@@ -13,16 +13,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Calendar } from "@/components/ui/calendar"
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
-import {
   MapPin,
   Users,
   Monitor,
@@ -193,345 +183,170 @@ const RoomsPage: React.FC = () => {
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-gray-50">
-        {/* Main Sidebar */}
-        <Sidebar className="border-r">
-          <SidebarHeader className="p-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <CalendarIcon className="w-4 h-4 text-white" />
+    <div className="min-h-screen w-full bg-gray-50 flex flex-col">
+      {/* Navbar */}
+      <header className="bg-white border-b px-3 md:px-6 py-3 md:py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
+            <div className="min-w-0">
+              <h1 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
+                <span className="hidden sm:inline">Room Management</span>
+                <span className="sm:hidden">Rooms</span>
+              </h1>
+              <p className="text-xs md:text-sm text-gray-600 hidden sm:block">
+                Manage rooms and facilities
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
+      {/* Main Content */}
+      <main className="flex-1 p-3 md:p-6 space-y-4 md:space-y-6 overflow-x-hidden">
+        {/* Filters */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <Input
+                  placeholder="Search rooms..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
               <div>
-                <h2 className="font-semibold text-lg">SmartSchedule</h2>
-                <p className="text-xs text-gray-500">School Planner</p>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Room type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    {roomTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Availability" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Rooms</SelectItem>
+                    <SelectItem value="available">Available</SelectItem>
+                    <SelectItem value="unavailable">Unavailable</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Button variant="outline" className="w-full">
+                  Export Report
+                </Button>
               </div>
             </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild isActive={item.active}>
-                    <Link href={item.href} className="flex items-center gap-3">
-                      {item.icon && <item.icon className="w-4 h-4" />}
-                      <span>{item.name}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-        </Sidebar>
+          </CardContent>
+        </Card>
 
-        <div className="flex-1 flex flex-col">
-          {/* Navbar */}
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <SidebarTrigger />
-                <div>
-                  <h1 className="text-xl md:text-2xl font-bold text-gray-900">Room Management</h1>
-                  <p className="text-sm text-gray-600 hidden md:block">Manage facilities and room bookings</p>
+        {/* Rooms Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredRooms.map((room) => (
+            <Card key={room.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                      <MapPin className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-lg truncate">{room.name}</h3>
+                      <p className="text-sm text-gray-600 truncate">{room.type}</p>
+                    </div>
+                  </div>
+                  <Badge variant={room.isAvailable ? "default" : "secondary"}>
+                    {room.isAvailable ? (
+                      <>
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Available
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="w-3 h-3 mr-1" />
+                        Unavailable
+                      </>
+                    )}
+                  </Badge>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Dialog open={isBookingDialogOpen} onOpenChange={setIsBookingDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" className="flex items-center gap-2">
-                      <CalendarIcon className="w-4 h-4" />
-                      Book Room
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Book a Room</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="room-select">Select Room</Label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose room" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {rooms
-                              .filter((r) => r.isAvailable)
-                              .map((room) => (
-                                <SelectItem key={room.id} value={room.id.toString()}>
-                                  {room.name} - {room.type}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="booking-title">Event Title</Label>
-                        <Input id="booking-title" placeholder="Enter event title" />
-                      </div>
-                      <div>
-                        <Label htmlFor="teacher">Teacher/Organizer</Label>
-                        <Input id="teacher" placeholder="Enter teacher name" />
-                      </div>
-                      <div>
-                        <Label htmlFor="subject">Subject/Purpose</Label>
-                        <Input id="subject" placeholder="Enter subject or purpose" />
-                      </div>
-                      <div>
-                        <Label htmlFor="time">Time</Label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select time" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"].map(
-                              (time) => (
-                                <SelectItem key={time} value={time}>
-                                  {time}
-                                </SelectItem>
-                              ),
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="duration">Duration (minutes)</Label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select duration" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="30">30 minutes</SelectItem>
-                            <SelectItem value="60">1 hour</SelectItem>
-                            <SelectItem value="90">1.5 hours</SelectItem>
-                            <SelectItem value="120">2 hours</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="col-span-2">
-                        <Label>Select Date</Label>
-                        <Calendar
-                          mode="single"
-                          selected={selectedDate}
-                          onSelect={setSelectedDate}
-                          className="rounded-md border"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-2 mt-4">
-                      <Button variant="outline" onClick={() => setIsBookingDialogOpen(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={() => setIsBookingDialogOpen(false)}>Book Room</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-gray-500" />
+                  <span className="text-sm">Capacity: {room.capacity} people</span>
+                </div>
 
-                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="flex items-center gap-2">
-                      <Plus className="w-4 h-4" />
-                      Add Room
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Add New Room</DialogTitle>
-                    </DialogHeader>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="room-name">Room Name</Label>
-                        <Input id="room-name" placeholder="e.g., Room 101" />
-                      </div>
-                      <div>
-                        <Label htmlFor="room-type">Room Type</Label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {ROOM_TYPES.map((type) => (
-                              <SelectItem key={type} value={type}>
-                                {type}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="capacity">Capacity</Label>
-                        <Input id="capacity" type="number" placeholder="Number of people" />
-                      </div>
-                      <div>
-                        <Label htmlFor="equipment">Equipment</Label>
-                        <Input id="equipment" placeholder="Comma-separated list" />
-                      </div>
-                      <div className="col-span-2">
-                        <Label htmlFor="room-notes">Notes</Label>
-                        <Textarea id="room-notes" placeholder="Additional information..." />
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-2 mt-4">
-                      <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={() => setIsAddDialogOpen(false)}>Add Room</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-          </header>
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Equipment</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {room.equipment.slice(0, 3).map((item) => (
+                      <Badge key={item} variant="outline" className="text-xs">
+                        {getEquipmentIcon(item)}
+                        <span className="ml-1">{item}</span>
+                      </Badge>
+                    ))}
+                    {room.equipment.length > 3 && (
+                      <Badge variant="outline" className="text-xs">
+                        +{room.equipment.length - 3} more
+                      </Badge>
+                    )}
+                  </div>
+                </div>
 
-          {/* Main Content */}
-          <main className="flex-1 p-6 space-y-6">
-            {/* Filters */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div>
-                    <Input
-                      placeholder="Search rooms..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Today's Bookings</h4>
+                  {room.bookings.length > 0 ? (
+                    <div className="space-y-1">
+                      {room.bookings.slice(0, 2).map((booking) => (
+                        <div key={booking.id} className="flex items-center gap-2 text-xs bg-gray-50 p-2 rounded">
+                          <Clock className="w-3 h-3" />
+                          <span>
+                            {booking.time} - {booking.title}
+                          </span>
+                        </div>
+                      ))}
+                      {room.bookings.length > 2 && (
+                        <p className="text-xs text-gray-500">+{room.bookings.length - 2} more bookings</p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500">No bookings today</p>
+                  )}
+                </div>
+
+                {room.notes && (
+                  <div className="p-2 bg-gray-50 rounded text-sm">
+                    <p className="text-gray-700">{room.notes}</p>
                   </div>
-                  <div>
-                    <Select value={typeFilter} onValueChange={setTypeFilter}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Room type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Types</SelectItem>
-                        {roomTypes.map((type) => (
-                          <SelectItem key={type} value={type}>
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Availability" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Rooms</SelectItem>
-                        <SelectItem value="available">Available</SelectItem>
-                        <SelectItem value="unavailable">Unavailable</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Button variant="outline" className="w-full">
-                      Export Report
-                    </Button>
-                  </div>
+                )}
+
+                <div className="flex flex-col md:flex-row gap-2 pt-2">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => setSelectedRoom(room)}>
+                    <Edit className="w-3 h-3 mr-1" />
+                    Details
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleToggleAvailability(room.id)}>
+                    {room.isAvailable ? <XCircle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleDeleteRoom(room.id)}>
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-
-            {/* Rooms Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredRooms.map((room) => (
-                <Card key={room.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                          <MapPin className="w-6 h-6 text-purple-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-lg truncate">{room.name}</h3>
-                          <p className="text-sm text-gray-600 truncate">{room.type}</p>
-                        </div>
-                      </div>
-                      <Badge variant={room.isAvailable ? "default" : "secondary"}>
-                        {room.isAvailable ? (
-                          <>
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Available
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="w-3 h-3 mr-1" />
-                            Unavailable
-                          </>
-                        )}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm">Capacity: {room.capacity} people</span>
-                    </div>
-
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Equipment</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {room.equipment.slice(0, 3).map((item) => (
-                          <Badge key={item} variant="outline" className="text-xs">
-                            {getEquipmentIcon(item)}
-                            <span className="ml-1">{item}</span>
-                          </Badge>
-                        ))}
-                        {room.equipment.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{room.equipment.length - 3} more
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Today's Bookings</h4>
-                      {room.bookings.length > 0 ? (
-                        <div className="space-y-1">
-                          {room.bookings.slice(0, 2).map((booking) => (
-                            <div key={booking.id} className="flex items-center gap-2 text-xs bg-gray-50 p-2 rounded">
-                              <Clock className="w-3 h-3" />
-                              <span>
-                                {booking.time} - {booking.title}
-                              </span>
-                            </div>
-                          ))}
-                          {room.bookings.length > 2 && (
-                            <p className="text-xs text-gray-500">+{room.bookings.length - 2} more bookings</p>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-gray-500">No bookings today</p>
-                      )}
-                    </div>
-
-                    {room.notes && (
-                      <div className="p-2 bg-gray-50 rounded text-sm">
-                        <p className="text-gray-700">{room.notes}</p>
-                      </div>
-                    )}
-
-                    <div className="flex flex-col md:flex-row gap-2 pt-2">
-                      <Button variant="outline" size="sm" className="flex-1" onClick={() => setSelectedRoom(room)}>
-                        <Edit className="w-3 h-3 mr-1" />
-                        Details
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleToggleAvailability(room.id)}>
-                        {room.isAvailable ? <XCircle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleDeleteRoom(room.id)}>
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </main>
+          ))}
         </div>
-      </div>
-    </SidebarProvider>
+      </main>
+    </div>
   )
 }
 

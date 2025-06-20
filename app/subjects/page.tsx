@@ -9,16 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
-import {
   BookOpen,
   Plus,
   Edit,
@@ -364,416 +354,351 @@ export default function SubjectsPage(): JSX.Element {
   }
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-gray-50">
-        {/* Main Sidebar */}
-        <Sidebar className="border-r">
-          <SidebarHeader className="p-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Calendar className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h2 className="font-semibold text-lg">SmartSchedule</h2>
-                <p className="text-xs text-gray-500">School Planner</p>
-              </div>
+    <div className="min-h-screen w-full bg-gray-50 flex flex-col">
+      {/* Navbar */}
+      <header className="bg-white border-b px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Subject Management</h1>
+              <p className="text-gray-600">Manage subjects, curriculum, and academic programs</p>
             </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild isActive={item.active}>
-                    <a href={item.href} className="flex items-center gap-3">
-                      {item.icon && <item.icon className="w-4 h-4" />}
-                      <span>{item.name}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-        </Sidebar>
-
-        <div className="flex-1 flex flex-col">
-          {/* Navbar */}
-          <header className="bg-white border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <SidebarTrigger />
+          </div>
+        </div>
+      </header>
+      {/* Main Content */}
+      <main className="flex-1 p-3 md:p-6 space-y-4 md:space-y-6 overflow-x-hidden">
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-blue-600" />
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Subject Management</h1>
-                  <p className="text-gray-600">Manage subjects, curriculum, and academic programs</p>
+                  <p className="text-sm text-gray-600">Total Subjects</p>
+                  <p className="text-2xl font-bold">{stats.totalSubjects}</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
               <div className="flex items-center gap-2">
-                <Button variant="outline" className="hidden md:inline-flex">
-                  <Download className="w-4 h-4 mr-1" />
-                  Export
-                </Button>
-                <Button variant="outline" className="hidden md:inline-flex">
-                  <Upload className="w-4 h-4 mr-1" />
-                  Import
-                </Button>
-                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-1" />
-                      Add Subject
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto sm:max-w-full">
-                    <DialogHeader>
-                      <DialogTitle>Add New Subject</DialogTitle>
-                    </DialogHeader>
-                    <SubjectForm
-                      onSubmit={(subject) => {
-                        handleAddSubject(subject)
-                        setIsAddDialogOpen(false)
-                      }}
-                      onCancel={() => setIsAddDialogOpen(false)}
-                    />
-                  </DialogContent>
-                </Dialog>
+                <Target className="w-5 h-5 text-green-600" />
+                <div>
+                  <p className="text-sm text-gray-600">Active Subjects</p>
+                  <p className="text-2xl font-bold">{stats.activeSubjects}</p>
+                </div>
               </div>
-            </div>
-          </header>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-purple-600" />
+                <div>
+                  <p className="text-sm text-gray-600">Total Students</p>
+                  <p className="text-2xl font-bold">{stats.totalStudents}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-orange-600" />
+                <div>
+                  <p className="text-sm text-gray-600">Avg Grade</p>
+                  <p className={`text-2xl font-bold ${getPerformanceColor(stats.averageGrade, "grade")}`}>
+                    {stats.averageGrade}%
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-indigo-600" />
+                <div>
+                  <p className="text-sm text-gray-600">Pass Rate</p>
+                  <p className={`text-2xl font-bold ${getPerformanceColor(stats.averagePassRate, "rate")}`}>
+                    {stats.averagePassRate}%
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-          {/* Main Content */}
-          <main className="flex-1 p-6 space-y-6">
-            {/* Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-blue-600" />
-                    <div>
-                      <p className="text-sm text-gray-600">Total Subjects</p>
-                      <p className="text-2xl font-bold">{stats.totalSubjects}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-green-600" />
-                    <div>
-                      <p className="text-sm text-gray-600">Active Subjects</p>
-                      <p className="text-2xl font-bold">{stats.activeSubjects}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-purple-600" />
-                    <div>
-                      <p className="text-sm text-gray-600">Total Students</p>
-                      <p className="text-2xl font-bold">{stats.totalStudents}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-5 h-5 text-orange-600" />
-                    <div>
-                      <p className="text-sm text-gray-600">Avg Grade</p>
-                      <p className={`text-2xl font-bold ${getPerformanceColor(stats.averageGrade, "grade")}`}>
-                        {stats.averageGrade}%
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="w-5 h-5 text-indigo-600" />
-                    <div>
-                      <p className="text-sm text-gray-600">Pass Rate</p>
-                      <p className={`text-2xl font-bold ${getPerformanceColor(stats.averagePassRate, "rate")}`}>
-                        {stats.averagePassRate}%
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="w-full overflow-x-auto">
+            <TabsTrigger value="subjects">Subjects</TabsTrigger>
+            <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="w-full overflow-x-auto">
-                <TabsTrigger value="subjects">Subjects</TabsTrigger>
-                <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
-                <TabsTrigger value="analytics">Analytics</TabsTrigger>
-              </TabsList>
+          <TabsContent value="subjects" className="space-y-6">
+            {/* Filters */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  <div className="relative">
+                    <SearchIcon className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+                    <Input
+                      placeholder="Search subjects..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Departments</SelectItem>
+                      {DEPARTMENTS.map((dept) => (
+                        <SelectItem key={dept} value={dept}>
+                          {dept}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Difficulty" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Levels</SelectItem>
+                      {DIFFICULTY_LEVELS.map((level) => (
+                        <SelectItem key={level} value={level}>
+                          {level}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" className="w-full hidden md:inline-flex">
+                    <FilterIcon className="w-4 h-4 mr-1" />
+                    Advanced Filters
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
-              <TabsContent value="subjects" className="space-y-6">
-                {/* Filters */}
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                      <div className="relative">
-                        <SearchIcon className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
-                        <Input
-                          placeholder="Search subjects..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="pl-10"
-                        />
+            {/* Subjects Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredSubjects.map((subject) => (
+                <Card key={subject.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-semibold text-lg">{subject.name}</h3>
+                        <p className="text-sm text-gray-600">{subject.code}</p>
                       </div>
-                      <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Department" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Departments</SelectItem>
-                          {DEPARTMENTS.map((dept) => (
-                            <SelectItem key={dept} value={dept}>
-                              {dept}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Difficulty" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Levels</SelectItem>
-                          {DIFFICULTY_LEVELS.map((level) => (
-                            <SelectItem key={level} value={level}>
-                              {level}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Status</SelectItem>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Button variant="outline" className="w-full hidden md:inline-flex">
-                        <FilterIcon className="w-4 h-4 mr-1" />
-                        Advanced Filters
+                      <div className="flex flex-col gap-1">
+                        <Badge variant={subject.isActive ? "default" : "secondary"}>
+                          {subject.isActive ? "Active" : "Inactive"}
+                        </Badge>
+                        <Badge className={getDifficultyColor(subject.difficulty)}>{subject.difficulty}</Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-gray-700 line-clamp-2">{subject.description}</p>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-gray-500">Department</p>
+                        <p className="font-medium">{subject.department}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Credits</p>
+                        <p className="font-medium">{subject.credits}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Enrolled</p>
+                        <p className="font-medium">
+                          {subject.enrolledStudents}/{subject.maxCapacity}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Duration</p>
+                        <p className="font-medium">{subject.duration} weeks</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span>Enrollment</span>
+                        <span>{Math.round((subject.enrolledStudents / subject.maxCapacity) * 100)}%</span>
+                      </div>
+                      <Progress value={(subject.enrolledStudents / subject.maxCapacity) * 100} className="h-2" />
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div>
+                        <p className="text-xs text-gray-500">Avg Grade</p>
+                        <p
+                          className={`font-semibold ${getPerformanceColor(subject.performance.averageGrade, "grade")}`}
+                        >
+                          {subject.performance.averageGrade}%
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Pass Rate</p>
+                        <p className={`font-semibold ${getPerformanceColor(subject.performance.passRate, "rate")}`}>
+                          {subject.performance.passRate}%
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Completion</p>
+                        <p
+                          className={`font-semibold ${getPerformanceColor(subject.performance.completionRate, "rate")}`}
+                        >
+                          {subject.performance.completionRate}%
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => setSelectedSubject(subject)}
+                      >
+                        <Edit className="w-3 h-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleToggleStatus(subject.id)}>
+                        <Target className="w-3 h-3" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleDeleteSubject(subject.id)}>
+                        <Trash2 className="w-3 h-3" />
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
+              ))}
+            </div>
+          </TabsContent>
 
-                {/* Subjects Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredSubjects.map((subject) => (
-                    <Card key={subject.id} className="hover:shadow-lg transition-shadow">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h3 className="font-semibold text-lg">{subject.name}</h3>
-                            <p className="text-sm text-gray-600">{subject.code}</p>
-                          </div>
-                          <div className="flex flex-col gap-1">
-                            <Badge variant={subject.isActive ? "default" : "secondary"}>
-                              {subject.isActive ? "Active" : "Inactive"}
-                            </Badge>
-                            <Badge className={getDifficultyColor(subject.difficulty)}>{subject.difficulty}</Badge>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <p className="text-sm text-gray-700 line-clamp-2">{subject.description}</p>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-xs text-gray-500">Department</p>
-                            <p className="font-medium">{subject.department}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Credits</p>
-                            <p className="font-medium">{subject.credits}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Enrolled</p>
-                            <p className="font-medium">
-                              {subject.enrolledStudents}/{subject.maxCapacity}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Duration</p>
-                            <p className="font-medium">{subject.duration} weeks</p>
-                          </div>
-                        </div>
-
+          <TabsContent value="curriculum" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Curriculum Management
+                  </div>
+                  <Button onClick={() => setIsCurriculumDialogOpen(true)}>
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Curriculum
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {curriculums.map((curriculum) => (
+                    <div key={curriculum.id} className="border rounded-lg p-4">
+                      <div className="flex items-start justify-between">
                         <div>
-                          <div className="flex justify-between text-xs mb-1">
-                            <span>Enrollment</span>
-                            <span>{Math.round((subject.enrolledStudents / subject.maxCapacity) * 100)}%</span>
-                          </div>
-                          <Progress value={(subject.enrolledStudents / subject.maxCapacity) * 100} className="h-2" />
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-2 text-center">
-                          <div>
-                            <p className="text-xs text-gray-500">Avg Grade</p>
-                            <p
-                              className={`font-semibold ${getPerformanceColor(subject.performance.averageGrade, "grade")}`}
-                            >
-                              {subject.performance.averageGrade}%
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Pass Rate</p>
-                            <p className={`font-semibold ${getPerformanceColor(subject.performance.passRate, "rate")}`}>
-                              {subject.performance.passRate}%
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-500">Completion</p>
-                            <p
-                              className={`font-semibold ${getPerformanceColor(subject.performance.completionRate, "rate")}`}
-                            >
-                              {subject.performance.completionRate}%
-                            </p>
+                          <h4 className="font-semibold">{curriculum.name}</h4>
+                          <p className="text-sm text-gray-600 mt-1">{curriculum.description}</p>
+                          <div className="flex items-center gap-4 mt-2 text-sm">
+                            <span>
+                              <strong>Subjects:</strong> {curriculum.subjects.length}
+                            </span>
+                            <span>
+                              <strong>Credits:</strong> {curriculum.totalCredits}
+                            </span>
+                            <span>
+                              <strong>Duration:</strong> {curriculum.duration}
+                            </span>
                           </div>
                         </div>
-
-                        <div className="flex gap-2 pt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex-1"
-                            onClick={() => setSelectedSubject(subject)}
-                          >
-                            <Edit className="w-3 h-3 mr-1" />
-                            Edit
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleToggleStatus(subject.id)}>
-                            <Target className="w-3 h-3" />
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleDeleteSubject(subject.id)}>
-                            <Trash2 className="w-3 h-3" />
+                        <div className="flex items-center gap-2">
+                          <Badge variant={curriculum.isActive ? "default" : "secondary"}>
+                            {curriculum.isActive ? "Active" : "Inactive"}
+                          </Badge>
+                          <Button variant="outline" size="sm">
+                            <Edit className="w-3 h-3" />
                           </Button>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   ))}
                 </div>
-              </TabsContent>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              <TabsContent value="curriculum" className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <FileText className="w-5 h-5" />
-                        Curriculum Management
+          <TabsContent value="analytics" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5" />
+                    Performance Overview
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {subjects.slice(0, 5).map((subject) => (
+                      <div key={subject.id} className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>{subject.name}</span>
+                          <span>{subject.performance.averageGrade}%</span>
+                        </div>
+                        <Progress value={subject.performance.averageGrade} className="h-2" />
                       </div>
-                      <Button onClick={() => setIsCurriculumDialogOpen(true)}>
-                        <Plus className="w-4 h-4 mr-1" />
-                        Add Curriculum
-                      </Button>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {curriculums.map((curriculum) => (
-                        <div key={curriculum.id} className="border rounded-lg p-4">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h4 className="font-semibold">{curriculum.name}</h4>
-                              <p className="text-sm text-gray-600 mt-1">{curriculum.description}</p>
-                              <div className="flex items-center gap-4 mt-2 text-sm">
-                                <span>
-                                  <strong>Subjects:</strong> {curriculum.subjects.length}
-                                </span>
-                                <span>
-                                  <strong>Credits:</strong> {curriculum.totalCredits}
-                                </span>
-                                <span>
-                                  <strong>Duration:</strong> {curriculum.duration}
-                                </span>
-                              </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <PieChart className="w-5 h-5" />
+                    Department Distribution
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {DEPARTMENTS.slice(0, 4).map((dept) => {
+                      const count = subjects.filter((s) => s.department === dept).length
+                      const percentage = Math.round((count / subjects.length) * 100)
+                      return (
+                        <div key={dept} className="flex items-center justify-between">
+                          <span className="text-sm">{dept}</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-20 bg-gray-200 rounded-full h-2">
+                              <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${percentage}%` }} />
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Badge variant={curriculum.isActive ? "default" : "secondary"}>
-                                {curriculum.isActive ? "Active" : "Inactive"}
-                              </Badge>
-                              <Button variant="outline" size="sm">
-                                <Edit className="w-3 h-3" />
-                              </Button>
-                            </div>
+                            <span className="text-xs text-gray-500 w-8">{count}</span>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="analytics" className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <BarChart3 className="w-5 h-5" />
-                        Performance Overview
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {subjects.slice(0, 5).map((subject) => (
-                          <div key={subject.id} className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span>{subject.name}</span>
-                              <span>{subject.performance.averageGrade}%</span>
-                            </div>
-                            <Progress value={subject.performance.averageGrade} className="h-2" />
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <PieChart className="w-5 h-5" />
-                        Department Distribution
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {DEPARTMENTS.slice(0, 4).map((dept) => {
-                          const count = subjects.filter((s) => s.department === dept).length
-                          const percentage = Math.round((count / subjects.length) * 100)
-                          return (
-                            <div key={dept} className="flex items-center justify-between">
-                              <span className="text-sm">{dept}</span>
-                              <div className="flex items-center gap-2">
-                                <div className="w-20 bg-gray-200 rounded-full h-2">
-                                  <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${percentage}%` }} />
-                                </div>
-                                <span className="text-xs text-gray-500 w-8">{count}</span>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </main>
-        </div>
-      </div>
-    </SidebarProvider>
+                      )
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
   )
 }

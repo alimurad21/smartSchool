@@ -27,20 +27,9 @@ import { NotificationSystem } from "@/components/notification-system";
 import { ScheduleOptimizer } from "@/components/schedule-optimizer";
 import { AdvancedAnalytics } from "@/components/advanced-analytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { useAuth } from "@/lib/auth-context"
-import { RoleGuard } from "@/components/auth/role-guard"
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
 // Types
 interface ScheduleItem {
   id: number;
@@ -312,221 +301,189 @@ export default function SchoolScheduler(): JSX.Element {
   }
   
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-gray-50">
-        <Sidebar className="border-r">
-          <SidebarHeader className="p-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Calendar className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h2 className="font-semibold text-lg">SmartSchedule</h2>
-                <p className="text-xs text-gray-500">School Planner</p>
-              </div>
+    <div className="min-h-screen w-full bg-gray-50 flex flex-col">
+      {/* Navbar */}
+      <header className="bg-white border-b px-3 md:px-6 py-3 md:py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 md:gap-4">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
+                <span className="hidden sm:inline">
+                  School Schedule Dashboard
+                </span>
+                <span className="sm:hidden">Dashboard</span>
+              </h1>
+              <p className="text-xs md:text-sm text-gray-600 hidden sm:block">
+                Manage and optimize your school's timetable
+              </p>
             </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild isActive={item.active}>
-                    <a href={item.href} className="flex items-center gap-3">
-                      {item.icon && <item.icon className="w-4 h-4" />}
-                      <span>{item.name}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-        </Sidebar>
-        <div className="flex-1 flex flex-col">
-          {/* Navbar */}
-          <header className="bg-white border-b px-3 md:px-6 py-3 md:py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 md:gap-4">
-                <div className="min-w-0 flex-1">
-                  <h1 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
-                    <span className="hidden sm:inline">
-                      School Schedule Dashboard
-                    </span>
-                    <span className="sm:hidden">Dashboard</span>
-                  </h1>
-                  <p className="text-xs md:text-sm text-gray-600 hidden sm:block">
-                    Manage and optimize your school's timetable
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 md:gap-2">
-                <NotificationSystem />
-                <Badge
-                  variant="outline"
-                  className="bg-green-50 text-green-700 border-green-200 text-xs md:text-sm"
-                >
-                  <Clock className="w-3 h-3 mr-1" />
-                  Live
-                </Badge>
-              </div>
-            </div>
-          </header>
-
-          {/* Main Content */}
-          <main className="flex-1 p-3 md:p-6 space-y-4 md:space-y-6 overflow-x-hidden">
-            <Tabs defaultValue="overview" className="space-y-4 md:space-y-6">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="schedule">Schedule</TabsTrigger>
-                <TabsTrigger value="optimizer">AI Optimizer</TabsTrigger>
-                <TabsTrigger value="analytics">Analytics</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="overview" className="space-y-4 md:space-y-6">
-                <div className="hidden md:block">
-                  <StatsCards />
-                </div>
-
-                {/* Mobile Stats - Condensed version */}
-                <div className="block md:hidden">
-                  <div className="grid grid-cols-2 gap-2">
-                    <Card className="p-3">
-                      <div className="text-center">
-                        <p className="text-lg font-bold">156</p>
-                        <p className="text-xs text-gray-600">Classes</p>
-                      </div>
-                    </Card>
-                    <Card className="p-3">
-                      <div className="text-center">
-                        <p className="text-lg font-bold">3</p>
-                        <p className="text-xs text-gray-600">Conflicts</p>
-                      </div>
-                    </Card>
-                  </div>
-                </div>
-
-                {/* Conflicts Alert - Mobile optimized */}
-                {conflicts.length > 0 && (
-                  <div className="block">
-                    <ConflictPanel
-                      conflicts={conflicts}
-                      onResolve={handleConflictResolve}
-                    />
-                  </div>
-                )}
-
-                {/* Quick Schedule Overview */}
-                <div className="block">
-                  <ScheduleGrid
-                    scheduleData={scheduleData}
-                    filters={{ selectedGrade, selectedTeacher, selectedRoom }}
-                    onScheduleUpdate={handleScheduleUpdate}
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="schedule" className="space-y-4 md:space-y-6">
-                {/* Filters - Mobile optimized */}
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Settings className="w-5 h-5" />
-                      <span className="hidden sm:inline">
-                        Filters & Controls
-                      </span>
-                      <span className="sm:hidden">Filters</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                      <div>
-                        <label className="text-sm font-medium mb-1 block">
-                          Grade
-                        </label>
-                        <Select
-                          value={selectedGrade}
-                          onValueChange={handleGradeChange}
-                        >
-                          <SelectTrigger className="h-9 md:h-10">
-                            <SelectValue placeholder="Select grade" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Grades</SelectItem>
-                            {GRADES.map((grade) => (
-                              <SelectItem key={grade} value={grade}>
-                                {grade}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium mb-1 block">
-                          Teacher
-                        </label>
-                        <Select
-                          value={selectedTeacher}
-                          onValueChange={handleTeacherChange}
-                        >
-                          <SelectTrigger className="h-9 md:h-10">
-                            <SelectValue placeholder="Select teacher" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Teachers</SelectItem>
-                            {TEACHERS.map((teacher) => (
-                              <SelectItem key={teacher} value={teacher}>
-                                {teacher}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="sm:col-span-2 lg:col-span-1">
-                        <label className="text-sm font-medium mb-1 block">
-                          Room
-                        </label>
-                        <Select
-                          value={selectedRoom}
-                          onValueChange={handleRoomChange}
-                        >
-                          <SelectTrigger className="h-9 md:h-10">
-                            <SelectValue placeholder="Select room" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Rooms</SelectItem>
-                            {ROOMS.map((room) => (
-                              <SelectItem key={room} value={room}>
-                                {room}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Schedule Grid - Mobile optimized */}
-                <div className="block">
-                  <ScheduleGrid
-                    scheduleData={scheduleData}
-                    filters={{ selectedGrade, selectedTeacher, selectedRoom }}
-                    onScheduleUpdate={handleScheduleUpdate}
-                  />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="optimizer">
-                <ScheduleOptimizer />
-              </TabsContent>
-
-              <TabsContent value="analytics">
-                <AdvancedAnalytics />
-              </TabsContent>
-            </Tabs>
-          </main>
+          </div>
+          <div className="flex items-center gap-1 md:gap-2">
+            <NotificationSystem />
+            <Badge
+              variant="outline"
+              className="bg-green-50 text-green-700 border-green-200 text-xs md:text-sm"
+            >
+              <Clock className="w-3 h-3 mr-1" />
+              Live
+            </Badge>
+          </div>
         </div>
-      </div>
-    </SidebarProvider>
+      </header>
+      {/* Main Content */}
+      <main className="flex-1 p-3 md:p-6 space-y-4 md:space-y-6 overflow-x-hidden">
+        <Tabs defaultValue="overview" className="space-y-4 md:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="schedule">Schedule</TabsTrigger>
+            <TabsTrigger value="optimizer">AI Optimizer</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-4 md:space-y-6">
+            <div className="hidden md:block">
+              <StatsCards />
+            </div>
+
+            {/* Mobile Stats - Condensed version */}
+            <div className="block md:hidden">
+              <div className="grid grid-cols-2 gap-2">
+                <Card className="p-3">
+                  <div className="text-center">
+                    <p className="text-lg font-bold">156</p>
+                    <p className="text-xs text-gray-600">Classes</p>
+                  </div>
+                </Card>
+                <Card className="p-3">
+                  <div className="text-center">
+                    <p className="text-lg font-bold">3</p>
+                    <p className="text-xs text-gray-600">Conflicts</p>
+                  </div>
+                </Card>
+              </div>
+            </div>
+
+            {/* Conflicts Alert - Mobile optimized */}
+            {conflicts.length > 0 && (
+              <div className="block">
+                <ConflictPanel
+                  conflicts={conflicts}
+                  onResolve={handleConflictResolve}
+                />
+              </div>
+            )}
+
+            {/* Quick Schedule Overview */}
+            <div className="block">
+              <ScheduleGrid
+                scheduleData={scheduleData}
+                filters={{ selectedGrade, selectedTeacher, selectedRoom }}
+                onScheduleUpdate={handleScheduleUpdate}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="schedule" className="space-y-4 md:space-y-6">
+            {/* Filters - Mobile optimized */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Settings className="w-5 h-5" />
+                  <span className="hidden sm:inline">
+                    Filters & Controls
+                  </span>
+                  <span className="sm:hidden">Filters</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">
+                      Grade
+                    </label>
+                    <Select
+                      value={selectedGrade}
+                      onValueChange={handleGradeChange}
+                    >
+                      <SelectTrigger className="h-9 md:h-10">
+                        <SelectValue placeholder="Select grade" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Grades</SelectItem>
+                        {GRADES.map((grade) => (
+                          <SelectItem key={grade} value={grade}>
+                            {grade}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1 block">
+                      Teacher
+                    </label>
+                    <Select
+                      value={selectedTeacher}
+                      onValueChange={handleTeacherChange}
+                    >
+                      <SelectTrigger className="h-9 md:h-10">
+                        <SelectValue placeholder="Select teacher" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Teachers</SelectItem>
+                        {TEACHERS.map((teacher) => (
+                          <SelectItem key={teacher} value={teacher}>
+                            {teacher}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="sm:col-span-2 lg:col-span-1">
+                    <label className="text-sm font-medium mb-1 block">
+                      Room
+                    </label>
+                    <Select
+                      value={selectedRoom}
+                      onValueChange={handleRoomChange}
+                    >
+                      <SelectTrigger className="h-9 md:h-10">
+                        <SelectValue placeholder="Select room" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Rooms</SelectItem>
+                        {ROOMS.map((room) => (
+                          <SelectItem key={room} value={room}>
+                            {room}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Schedule Grid - Mobile optimized */}
+            <div className="block">
+              <ScheduleGrid
+                scheduleData={scheduleData}
+                filters={{ selectedGrade, selectedTeacher, selectedRoom }}
+                onScheduleUpdate={handleScheduleUpdate}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="optimizer">
+            <ScheduleOptimizer />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AdvancedAnalytics />
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
   );
 }
 

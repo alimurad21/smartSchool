@@ -8,16 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar"
-import {
   GraduationCap,
   Calendar,
   Clock,
@@ -185,259 +175,224 @@ export default function StudentsPage(): JSX.Element {
   }, [])
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-gray-50">
-        {/* Main Sidebar */}
-        <Sidebar className="border-r">
-          <SidebarHeader className="p-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Calendar className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h2 className="font-semibold text-lg">SmartSchedule</h2>
-                <p className="text-xs text-gray-500">School Planner</p>
-              </div>
+    <div className="min-h-screen w-full bg-gray-50 flex flex-col">
+      {/* Navbar */}
+      <header className="bg-white border-b px-3 md:px-6 py-3 md:py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
+            <div className="min-w-0">
+              <h1 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
+                <span className="hidden sm:inline">Student Portal</span>
+                <span className="sm:hidden">Students</span>
+              </h1>
+              <p className="text-xs md:text-sm text-gray-600 hidden sm:block">
+                View student schedules and information
+              </p>
             </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.name}>
-                  <SidebarMenuButton asChild isActive={item.active}>
-                    <a href={item.href} className="flex items-center gap-3">
-                      {item.icon && <item.icon className="w-4 h-4" />}
-                      <span>{item.name}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-        </Sidebar>
+          </div>
+        </div>
+      </header>
+      {/* Main Content */}
+      <main className="flex-1 p-3 md:p-6 space-y-4 md:space-y-6 overflow-x-hidden">
+        <Tabs defaultValue="list" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="list">Student List</TabsTrigger>
+            <TabsTrigger value="schedule">Schedule View</TabsTrigger>
+          </TabsList>
 
-        <div className="flex-1 flex flex-col">
-          {/* Navbar */}
-          <header className="bg-white border-b px-3 md:px-6 py-3 md:py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
-                <SidebarTrigger />
-                <div className="min-w-0">
-                  <h1 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
-                    <span className="hidden sm:inline">Student Portal</span>
-                    <span className="sm:hidden">Students</span>
-                  </h1>
-                  <p className="text-xs md:text-sm text-gray-600 hidden sm:block">
-                    View student schedules and information
-                  </p>
+          <TabsContent value="list" className="space-y-6">
+            {/* Filters */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Input
+                      placeholder="Search students..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Select value={gradeFilter} onValueChange={setGradeFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select grade" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Grades</SelectItem>
+                        {grades.map((grade) => (
+                          <SelectItem key={grade} value={grade}>
+                            {grade}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Button variant="outline" className="w-full">
+                      Export All
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </header>
+              </CardContent>
+            </Card>
 
-          {/* Main Content */}
-          <main className="flex-1 p-6">
-            <Tabs defaultValue="list" className="space-y-6">
-              <TabsList>
-                <TabsTrigger value="list">Student List</TabsTrigger>
-                <TabsTrigger value="schedule">Schedule View</TabsTrigger>
-              </TabsList>
+            {/* Students Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredStudents.map((student) => (
+                <Card key={student.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                          <GraduationCap className="w-6 h-6 text-green-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-lg">{student.name}</h3>
+                          <p className="text-sm text-gray-600">{student.studentId}</p>
+                        </div>
+                      </div>
+                      <Badge variant="outline">{student.grade}</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Mail className="w-4 h-4 text-gray-500" />
+                        <span>{student.email}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <User className="w-4 h-4 text-gray-500" />
+                        <span>{student.parent.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone className="w-4 h-4 text-gray-500" />
+                        <span>{student.parent.phone}</span>
+                      </div>
+                    </div>
 
-              <TabsContent value="list" className="space-y-6">
-                {/* Filters */}
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div>
-                        <Input
-                          placeholder="Search students..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                    <div className="grid grid-cols-2 gap-4 py-2 border-t">
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">GPA</p>
+                        <p className="font-semibold text-lg">{student.gpa}</p>
                       </div>
-                      <div>
-                        <Select value={gradeFilter} onValueChange={setGradeFilter}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select grade" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Grades</SelectItem>
-                            {grades.map((grade) => (
-                              <SelectItem key={grade} value={grade}>
-                                {grade}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      <div className="text-center">
+                        <p className="text-sm text-gray-600">Attendance</p>
+                        <p className="font-semibold text-lg">{student.attendance}%</p>
                       </div>
-                      <div>
-                        <Button variant="outline" className="w-full">
-                          Export All
-                        </Button>
-                      </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => setSelectedStudent(student)}
+                      >
+                        <Calendar className="w-3 h-3 mr-1" />
+                        View Schedule
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleExportSchedule(student)}>
+                        <Download className="w-3 h-3" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handlePrintSchedule(student)}>
+                        <Print className="w-3 h-3" />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
+              ))}
+            </div>
+          </TabsContent>
 
-                {/* Students Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredStudents.map((student) => (
-                    <Card key={student.id} className="hover:shadow-lg transition-shadow">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                              <GraduationCap className="w-6 h-6 text-green-600" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-lg">{student.name}</h3>
-                              <p className="text-sm text-gray-600">{student.studentId}</p>
-                            </div>
+          <TabsContent value="schedule" className="space-y-6">
+            {selectedStudent ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-5 h-5" />
+                      Schedule for {selectedStudent.name}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleExportSchedule(selectedStudent)}>
+                        <Download className="w-4 h-4 mr-1" />
+                        Export
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handlePrintSchedule(selectedStudent)}>
+                        <Print className="w-4 h-4 mr-1" />
+                        Print
+                      </Button>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <div className="min-w-[800px]">
+                      {/* Header */}
+                      <div className="grid grid-cols-6 gap-2 mb-4">
+                        <div className="font-semibold text-center py-2">Time</div>
+                        {DAYS.map((day) => (
+                          <div key={day} className="font-semibold text-center py-2 bg-gray-50 rounded">
+                            {day}
                           </div>
-                          <Badge variant="outline">{student.grade}</Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-sm">
-                            <Mail className="w-4 h-4 text-gray-500" />
-                            <span>{student.email}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <User className="w-4 h-4 text-gray-500" />
-                            <span>{student.parent.name}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <Phone className="w-4 h-4 text-gray-500" />
-                            <span>{student.parent.phone}</span>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4 py-2 border-t">
-                          <div className="text-center">
-                            <p className="text-sm text-gray-600">GPA</p>
-                            <p className="font-semibold text-lg">{student.gpa}</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-sm text-gray-600">Attendance</p>
-                            <p className="font-semibold text-lg">{student.attendance}%</p>
-                          </div>
-                        </div>
-
-                        <div className="flex gap-2 pt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex-1"
-                            onClick={() => setSelectedStudent(student)}
-                          >
-                            <Calendar className="w-3 h-3 mr-1" />
-                            View Schedule
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleExportSchedule(student)}>
-                            <Download className="w-3 h-3" />
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handlePrintSchedule(student)}>
-                            <Print className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-
-              <TabsContent value="schedule" className="space-y-6">
-                {selectedStudent ? (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-5 h-5" />
-                          Schedule for {selectedStudent.name}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleExportSchedule(selectedStudent)}>
-                            <Download className="w-4 h-4 mr-1" />
-                            Export
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handlePrintSchedule(selectedStudent)}>
-                            <Print className="w-4 h-4 mr-1" />
-                            Print
-                          </Button>
-                        </div>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="overflow-x-auto">
-                        <div className="min-w-[800px]">
-                          {/* Header */}
-                          <div className="grid grid-cols-6 gap-2 mb-4">
-                            <div className="font-semibold text-center py-2">Time</div>
-                            {DAYS.map((day) => (
-                              <div key={day} className="font-semibold text-center py-2 bg-gray-50 rounded">
-                                {day}
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Time slots */}
-                          {TIME_SLOTS.map((time) => (
-                            <div key={time} className="grid grid-cols-6 gap-2 mb-2">
-                              <div className="flex items-center justify-center py-4 font-medium text-gray-600 bg-gray-50 rounded">
-                                {time}
-                              </div>
-                              {DAYS.map((day) => {
-                                const daySchedule = getScheduleForDay(selectedStudent.schedule, day)
-                                const classAtTime = daySchedule.find((item) => item.time === time)
-
-                                return (
-                                  <div
-                                    key={`${day}-${time}`}
-                                    className="min-h-[80px] p-2 border border-gray-200 rounded-lg"
-                                  >
-                                    {classAtTime && (
-                                      <div className="bg-blue-500 text-white p-2 rounded-lg">
-                                        <div className="font-medium text-sm">{classAtTime.subject}</div>
-                                        <div className="text-xs opacity-90 space-y-1">
-                                          <div className="flex items-center gap-1">
-                                            <User className="w-3 h-3" />
-                                            <span>{classAtTime.teacher}</span>
-                                          </div>
-                                          <div className="flex items-center gap-1">
-                                            <MapPin className="w-3 h-3" />
-                                            <span>{classAtTime.room}</span>
-                                          </div>
-                                          <div className="flex items-center gap-1">
-                                            <Clock className="w-3 h-3" />
-                                            <span>{classAtTime.duration}min</span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          ))}
-                        </div>
+                        ))}
                       </div>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <Card>
-                    <CardContent className="p-12 text-center">
-                      <GraduationCap className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-600 mb-2">No Student Selected</h3>
-                      <p className="text-gray-500">Select a student from the list to view their schedule</p>
-                    </CardContent>
-                  </Card>
-                )}
-              </TabsContent>
-            </Tabs>
-          </main>
-        </div>
-      </div>
-    </SidebarProvider>
+
+                      {/* Time slots */}
+                      {TIME_SLOTS.map((time) => (
+                        <div key={time} className="grid grid-cols-6 gap-2 mb-2">
+                          <div className="flex items-center justify-center py-4 font-medium text-gray-600 bg-gray-50 rounded">
+                            {time}
+                          </div>
+                          {DAYS.map((day) => {
+                            const daySchedule = getScheduleForDay(selectedStudent.schedule, day)
+                            const classAtTime = daySchedule.find((item) => item.time === time)
+
+                            return (
+                              <div
+                                key={`${day}-${time}`}
+                                className="min-h-[80px] p-2 border border-gray-200 rounded-lg"
+                              >
+                                {classAtTime && (
+                                  <div className="bg-blue-500 text-white p-2 rounded-lg">
+                                    <div className="font-medium text-sm">{classAtTime.subject}</div>
+                                    <div className="text-xs opacity-90 space-y-1">
+                                      <div className="flex items-center gap-1">
+                                        <User className="w-3 h-3" />
+                                        <span>{classAtTime.teacher}</span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <MapPin className="w-3 h-3" />
+                                        <span>{classAtTime.room}</span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <Clock className="w-3 h-3" />
+                                        <span>{classAtTime.duration}min</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <GraduationCap className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-600 mb-2">No Student Selected</h3>
+                  <p className="text-gray-500">Select a student from the list to view their schedule</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
   )
 }
